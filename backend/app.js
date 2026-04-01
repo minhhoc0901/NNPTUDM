@@ -16,6 +16,15 @@ const authRoutes = require('./routes/autRoutes');
 const userRoutes = require('./routes/userRoutes');
 const adminRouter = require('./routes/adminRouter');
 const contactRoutes = require('./routes/contactRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
+const locationRoutes = require('./routes/locationRoutes');
+const tourRoutes = require('./routes/tourRoutes');
+const tourDepartureRoutes = require('./routes/tourDepartureRoutes');
+const locationCommentRoutes = require('./routes/locationCommentRoutes');
+const hotelRoutes = require('./routes/hotelRoutes');
+const itineraryRoutes = require('./routes/itineraryRoutes');
+const tourPriceRoutes = require('./routes/tourPriceRoutes');
+const promotionRoutes = require('./routes/promotionRoutes');
 const { checkConnection } = require('./config/db');
 
 // --- Khởi tạo Express App và HTTP Server ---
@@ -51,6 +60,9 @@ app.use(fileUpload({
 const uploadDirs = [
     path.join(__dirname, 'uploads'),
     path.join(__dirname, 'uploads/users'),
+    path.join(__dirname, 'uploads/tours'),
+    path.join(__dirname, 'uploads/locations'),
+    path.join(__dirname, 'uploads/review_images')
 ];
 uploadDirs.forEach(dir => {
     if (!fs.existsSync(dir)) {
@@ -68,6 +80,16 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRouter);
 app.use('/api/contact', contactRoutes);
+app.use('/api/tours', tourRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/locations', locationRoutes);
+app.use('/api/promotions', promotionRoutes);
+app.use('/api/tour-prices', tourPriceRoutes);
+app.use('/api/itineraries', itineraryRoutes);
+app.use('/api/tour-departures', tourDepartureRoutes);
+app.use('/api/location-comments', locationCommentRoutes);
+app.use('/api/hotels', hotelRoutes);
+
 
 
 // --- Khởi động Server ---
