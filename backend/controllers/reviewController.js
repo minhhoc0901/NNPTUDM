@@ -19,16 +19,16 @@ exports.addReview = async (req, res) => {
         let imageUrls = [];
         if (req.files && req.files.images) {
             const files = Array.isArray(req.files.images) ? req.files.images : [req.files.images];
-            const uploadDir = path.join(__dirname, '../uploads/reviews');
+            const uploadDir = path.join(__dirname, '../uploads/review_images');
             if (!fs.existsSync(uploadDir)) {
                 fs.mkdirSync(uploadDir, { recursive: true });
             }
 
             for (const file of files) {
-                const fileName = `${Date.now()}_${file.name}`;
+                const fileName = `review-${tour_id}-${user_id}-${Date.now()}-${Math.floor(Math.random() * 1000000000)}${path.extname(file.name)}`;
                 const filePath = path.join(uploadDir, fileName);
                 await file.mv(filePath);
-                imageUrls.push(`/uploads/reviews/${fileName}`);
+                imageUrls.push(`/uploads/review_images/${fileName}`);
             }
         }
 

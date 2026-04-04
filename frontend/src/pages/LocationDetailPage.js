@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom"; 
+import api, { imageBaseUrl } from '../services/api';
 import axios from "axios";
 import "../styles/LocationCSS/LocationDetailPage.css";
 // Import all components
@@ -47,11 +48,7 @@ const LocationDetailPage = () => {
   useEffect(() => {
     const fetchLocation = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/locations/${id}`, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await api.get(`/locations/${id}`);
         setLocation(response.data);
         setLoading(false);
       } catch (err) {
@@ -115,7 +112,7 @@ const LocationDetailPage = () => {
     if (!imagePath || typeof imagePath !== "string") {
       return "https://via.placeholder.com/300x200?text=No+Image";
     }
-    return `http://localhost:5000${imagePath}`;
+    return `${imageBaseUrl}${imagePath}`;
   };
 
   return (
