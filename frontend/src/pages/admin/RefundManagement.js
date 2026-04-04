@@ -15,7 +15,7 @@ const RefundManagement = () => {
     const [selectedRefund, setSelectedRefund] = useState(null);
     
     const [filters, setFilters] = useState({
-        status: 'pending',
+        status: '',
         search: '',
         page: 1,
         limit: 20
@@ -85,7 +85,7 @@ const RefundManagement = () => {
     const handleFilterChange = (key, value) => {
         if (key === 'reset') {
             setFilters({
-                status: 'pending',
+                status: '',
                 search: '',
                 page: 1,
                 limit: 20

@@ -1,4 +1,5 @@
 import React from 'react';
+import { imageBaseUrl } from '../../services/api';
 import '../../styles/itineraryCSS/ReviewsList.css';
 
 const ReviewsList = ({ reviews }) => {
@@ -12,7 +13,7 @@ const ReviewsList = ({ reviews }) => {
         <div key={review.id} className="review-item">
           <div className="review-author-info">
             <img 
-              src={review.user_avatar ? `http://localhost:5000${review.user_avatar}` : 'https://via.placeholder.com/50?text=User'} 
+              src={review.user_avatar ? `${imageBaseUrl}${review.user_avatar}` : 'https://via.placeholder.com/50?text=User'} 
               alt={review.username || 'User'} 
               className="reviewer-avatar"
             />
@@ -40,7 +41,7 @@ const ReviewsList = ({ reviews }) => {
               {review.images.map((imageUrl, imgIndex) => (
                 <div key={imgIndex} className="review-image-item">
                   <img 
-                    src={`http://localhost:5000${imageUrl}`} 
+                    src={`${imageBaseUrl}${imageUrl}`} 
                     alt={`Hình ảnh đánh giá ${imgIndex + 1} cho review ${review.id}`}
                     className="review-gallery-image"
                     // onClick={() => {/* Open lightbox or larger preview */}}

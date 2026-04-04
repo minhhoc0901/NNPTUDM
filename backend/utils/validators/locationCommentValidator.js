@@ -16,7 +16,12 @@ const createCommentSchema = Joi.object({
             'string.empty': 'Bình luận không được để trống',
             'string.max': 'Bình luận không được vượt quá 1000 ký tự',
             'any.required': 'Bình luận là bắt buộc'
-        })
+        }),
+    
+    parent_id: Joi.number()
+        .integer()
+        .allow(null)
+        .optional()
 });
 
 function validateComment(data) {

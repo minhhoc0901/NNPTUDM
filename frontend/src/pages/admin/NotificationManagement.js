@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
 import { toast } from 'react-toastify';
-import { useAuth } from '../../contexts/AuthContext';
+import api from '../../services/api';
 import NotificationStats from '../../components/admin/Notification/NotificationStats';
 import NotificationList from '../../components/admin/Notification/NotificationList';
 import NotificationFilters from '../../components/admin/Notification/NotificationFilters';
@@ -9,7 +8,6 @@ import BulkNotificationModal from '../../components/admin/Notification/BulkNotif
 import '../../styles/admin/NotificationManagement.css';
 
 const NotificationManagement = () => {
-  const { getToken } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -27,14 +25,12 @@ const NotificationManagement = () => {
   const fetchNotifications = useCallback(async () => {
     setLoading(true);
     try {
-      const token = getToken();
-      const response = await axios.get('http://localhost:5000/api/admin/notifications/all', {
+      const response = await api.get('/admin-notifications/all', {
         params: {
           page: currentPage,
           limit: 20,
           type: filters.type !== 'all' ? filters.type : undefined
-        },
-        headers: { Authorization: `Bearer ${token}` }
+        }
       });
 
       if (response.data.success) {
@@ -47,15 +43,12 @@ const NotificationManagement = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, filters.type, getToken]);
+  }, [currentPage, filters.type]);
 
   // Fetch stats
   const fetchStats = useCallback(async () => {
     try {
-      const token = getToken();
-      const response = await axios.get('http://localhost:5000/api/admin/notifications/stats', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.get('/admin-notifications/stats');
 
       if (response.data.success) {
         setStats(response.data.data);
@@ -63,7 +56,7 @@ const NotificationManagement = () => {
     } catch (error) {
       console.error('Error fetching stats:', error);
     }
-  }, [getToken]);
+  }, []);
 
   useEffect(() => {
     fetchNotifications();
@@ -78,10 +71,7 @@ const NotificationManagement = () => {
     if (!window.confirm('Bạn có chắc muốn xóa thông báo này?')) return;
 
     try {
-      const token = getToken();
-      await axios.delete(`http://localhost:5000/api/admin/notifications/${notificationId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.delete(`/admin-notifications/${notificationId}`);
 
       toast.success('Đã xóa thông báo');
       fetchNotifications();
@@ -95,10 +85,7 @@ const NotificationManagement = () => {
   // Send bulk notification
   const handleSendBulk = async (data) => {
     try {
-      const token = getToken();
-      await axios.post('http://localhost:5000/api/admin/notifications/send-bulk', data, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.post('/admin-notifications/send-bulk', data);
 
       toast.success('Đã gửi thông báo thành công');
       setShowBulkModal(false);

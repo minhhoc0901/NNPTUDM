@@ -1,8 +1,9 @@
 import React from 'react'; // Đảm bảo React được import
 import { Link } from 'react-router-dom'; // Đảm bảo Link được import
-import TourSidebar from './TourSidebar'; // Đảm bảo TourSidebar được import
+import TourSidebar from './TourSidebar'; 
 import ReviewsList from './ReviewsList';
-import '../../styles/itineraryCSS/TourTabContent.css'; // Tạo file CSS này
+import { imageBaseUrl } from '../../services/api'; 
+import '../../styles/itineraryCSS/TourTabContent.css';
 
 const DEFAULT_NOTES = [
   "Quý khách vui lòng mang theo giấy tờ tùy thân (CMND/CCCD).",
@@ -61,7 +62,7 @@ const TourTabContent = ({
                     {location.image && (
                       <div className="location-card-image-wrapper-overview">
                         <img 
-                          src={`http://localhost:5000${location.image}`} 
+                          src={`${imageBaseUrl}${location.image}`} 
                           alt={location.name} 
                           className="location-card-image-overview"
                           onError={(e) => { e.target.src = '/placeholder-image.jpg'; }}
@@ -143,7 +144,7 @@ const TourTabContent = ({
                             >
                               {location.image && (
                                 <img
-                                  src={`http://localhost:5000${location.image}`}
+                                  src={`${imageBaseUrl}${location.image}`}
                                   alt={location.name}
                                   className="location-image-schedule"
                                   onError={(e) => { e.target.src = '/placeholder-image.jpg'; }}

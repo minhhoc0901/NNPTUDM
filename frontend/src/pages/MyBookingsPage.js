@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import api, { imageBaseUrl } from '../services/api';
 import { bookingService } from '../services/bookingService';
-import { paymentService } from '../services/paymentService'; 
+import { paymentService } from '../services/paymentService';
 import CountdownTimer from '../components/CountdownTimer';
 import ReviewModal from '../components/ItineraryDetail/RatingModal';
-import RefundMethodModal from '../components/admin/Booking/RefundMethodModal'; 
-import PaymentMethodModal from '../components/Payment/PaymentMethodModal'; 
-import { toast, ToastContainer } from 'react-toastify'; 
-import 'react-toastify/dist/ReactToastify.css'; 
+import RefundMethodModal from '../components/admin/Booking/RefundMethodModal';
+import PaymentMethodModal from '../components/Payment/PaymentMethodModal';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import '../styles/Booking/MyBookingsPage.css';
 
 const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, confirmText }) => {
@@ -140,7 +141,7 @@ const MyBookingsPage = () => {
 
     const handleCancelPaidBooking = (booking) => {
         const { refund_percent, refund_amount, daysUntilDeparture } = calculateRefund(booking);
-        
+
         // ✅ LUÔN LUÔN MỞ REFUND METHOD MODAL (kể cả khi refund = 0%)
         setSelectedBookingForCancel(booking);
         setRefundAmount(refund_amount);
@@ -150,16 +151,16 @@ const MyBookingsPage = () => {
 
     const handleConfirmRefund = async (refundMethod) => {
         if (!selectedBookingForCancel) return;
-        
+
         try {
             setSubmittingRefund(true);
             setShowRefundModal(false); // Đóng modal ngay khi bắt đầu xử lý
-            
+
             const result = await bookingService.cancelPaidBooking(
-                selectedBookingForCancel.id, 
+                selectedBookingForCancel.id,
                 { refund_method: refundMethod }
             );
-            
+
             if (result.success) {
                 // Nếu cần admin duyệt
                 if (result.requiresApproval) {
@@ -171,13 +172,13 @@ const MyBookingsPage = () => {
                     );
                 } else {
                     // Hủy thành công không cần duyệt hoặc không hoàn tiền
-                    const message = refundPercent === 0 
+                    const message = refundPercent === 0
                         ? 'Tour đã được hủy. Không được hoàn tiền do hủy muộn.'
                         : result.message || 'Tour đã được hủy thành công';
-                    
+
                     toast.warning(message, { autoClose: 5000 });
                 }
-                
+
                 // Cập nhật lại danh sách bookings
                 const response = await bookingService.getMyBookings();
                 setBookings(response);
@@ -200,7 +201,7 @@ const MyBookingsPage = () => {
                 toast.error(err.message || 'Không thể sửa booking');
             }
         };
-        
+
         // ✅ SỬA LỖI: Cập nhật cả modal sửa booking cho đồng bộ
         const message = `Chỉnh sửa booking sẽ HỦY đơn hàng hiện tại và tạo một đơn mới với thông tin bạn thay đổi.\n\n📋 Thông tin booking:\n- Tour: ${booking.tour_name || booking.destination || 'N/A'}\n- Ngày khởi hành: ${new Date(booking.departure_date).toLocaleDateString('vi-VN')}\n- Tổng tiền: ${formatCurrency(booking.final_amount)}\n\nBạn có muốn tiếp tục?`;
 
@@ -261,23 +262,19 @@ const MyBookingsPage = () => {
         formData.append('booking_id', selectedBookingForReview.id);
         formData.append('rating', rating);
         formData.append('comment', reviewText);
-        selectedReviewFiles.forEach(file => formData.append('reviewImages', file));
+        selectedReviewFiles.forEach(file => formData.append('images', file));
         try {
-            const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-            const response = await fetch('http://localhost:5000/api/reviews', {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` },
-                body: formData
+            const response = await api.post('/reviews', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
-            const result = await response.json();
-            if (result.success) {
+            if (response.data.success) {
                 toast.success('Đánh giá của bạn đã được gửi thành công!');
                 handleCloseReviewModal();
             } else {
-                toast.error(result.message || 'Không thể gửi đánh giá');
+                toast.error(response.data.message || 'Không thể gửi đánh giá');
             }
         } catch (err) {
-            toast.error(err.message || 'Không thể gửi đánh giá');
+            toast.error(err.response?.data?.message || err.message || 'Không thể gửi đánh giá');
         }
     };
 
@@ -360,7 +357,7 @@ const MyBookingsPage = () => {
                                     <div key={booking.id} className={`v2-booking-card-compact status-${booking.status}`}>
                                         {/* THUMBNAIL */}
                                         <div className="v2-booking-thumbnail">
-                                            <img src={`http://localhost:5000${booking.tour_image}`} alt={booking.tour_name} />
+                                            <img src={`${imageBaseUrl}${booking.tour_image}`} alt={booking.tour_name} />
                                             <span className={`v2-status-badge status-${booking.status} payment-${booking.payment_status}`}>
                                                 {booking.status === 'pending_payment' && isExpired ? 'Hết hạn' : getStatusText(booking.status, booking.payment_status)}
                                             </span>
@@ -500,8 +497,8 @@ const MyBookingsPage = () => {
                         {/* ✅ PAGINATION */}
                         {totalPages > 1 && (
                             <div className="v2-pagination-wrapper">
-                                <button 
-                                    onClick={() => paginate(currentPage - 1)} 
+                                <button
+                                    onClick={() => paginate(currentPage - 1)}
                                     disabled={currentPage === 1}
                                     className="v2-pagination-btn v2-pagination-prev"
                                 >
@@ -518,8 +515,8 @@ const MyBookingsPage = () => {
                                     </button>
                                 ))}
 
-                                <button 
-                                    onClick={() => paginate(currentPage + 1)} 
+                                <button
+                                    onClick={() => paginate(currentPage + 1)}
                                     disabled={currentPage === totalPages}
                                     className="v2-pagination-btn v2-pagination-next"
                                 >

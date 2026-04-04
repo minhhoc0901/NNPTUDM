@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api, { imageBaseUrl } from '../../services/api'; 
 import { useAuth } from '../../contexts/AuthContext';
 import io from 'socket.io-client';
 import { toast } from 'react-toastify';
@@ -17,7 +17,7 @@ const CommentSection = ({ locationId }) => {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/location-comments/${locationId}`);
+        const response = await api.get(`/location-comments/${locationId}`);
         if (response.data.success) {
           setComments(response.data.comments);
         }
@@ -31,7 +31,7 @@ const CommentSection = ({ locationId }) => {
 
   // ✅ Socket.IO listener - SỬA LẠI
   useEffect(() => {
-    const socket = io('http://localhost:5000');
+    const socket = io(imageBaseUrl);
 
     // Listen cho event cụ thể của location này
     socket.on(`location_${locationId}_new_comment`, (data) => {
@@ -84,17 +84,11 @@ const CommentSection = ({ locationId }) => {
 
     setLoading(true);
     try {
-      const token = getToken();
-      await axios.post(
-        'http://localhost:5000/api/location-comments',
+      await api.post(
+        '/location-comments',
         {
           location_id: locationId,
           comment: newComment
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
         }
       );
 
@@ -113,18 +107,12 @@ const CommentSection = ({ locationId }) => {
 
     setLoading(true);
     try {
-      const token = getToken();
-      await axios.post(
-        'http://localhost:5000/api/location-comments',
+      await api.post(
+        '/location-comments',
         {
           location_id: locationId,
           comment: replyText,
           parent_id: parentId
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
         }
       );
 
@@ -143,12 +131,7 @@ const CommentSection = ({ locationId }) => {
     if (!window.confirm('Bạn có chắc muốn xóa bình luận này?')) return;
 
     try {
-      const token = getToken();
-      await axios.delete(`http://localhost:5000/api/location-comments/${commentId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      await api.delete(`/location-comments/${commentId}`);
       toast.success('Xóa bình luận thành công!');
     } catch (error) {
       console.error('Error deleting comment:', error);
@@ -159,7 +142,7 @@ const CommentSection = ({ locationId }) => {
   const renderComment = (comment, isReply = false) => (
     <div key={comment.id} className={`comment-item ${isReply ? 'reply' : ''}`}>
       <img
-        src={comment.avatar ? `http://localhost:5000${comment.avatar}` : '/default-avatar.png'}
+        src={comment.avatar ? `${imageBaseUrl}${comment.avatar}` : '/default-avatar.png'}
         alt={comment.username}
         className="comment-avatar"
       />
@@ -180,7 +163,7 @@ const CommentSection = ({ locationId }) => {
         </div>
         <p className="comment-text">{comment.comment}</p>
         <div className="comment-actions">
-          {user?.id !== comment.user_id && isAuthenticated && !isReply && (
+          {isAuthenticated && (
             <button 
               onClick={() => setReplyingTo(comment.id)} 
               className="reply-btn"
@@ -238,7 +221,7 @@ const CommentSection = ({ locationId }) => {
         <form onSubmit={handleSubmit} className="comment-form">
           <div className="comment-input-wrapper">
             <img
-              src={user?.avatar ? `http://localhost:5000${user.avatar}` : '/default-avatar.png'}
+              src={user?.avatar ? `${imageBaseUrl}${user.avatar}` : '/default-avatar.png'}
               alt={user?.username}
               className="comment-avatar"
             />

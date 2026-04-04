@@ -90,28 +90,40 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.get('/', (req, res) => {
     res.send('Welcome to the Travel API!');
 });
+
+// 1. Hệ thống & Người dùng
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/admin', adminRouter);
-app.use('/api/contact', contactRoutes);
+
+// 2. Dữ liệu chính (Core Resources)
 app.use('/api/tours', tourRoutes);
-app.use('/api/reviews', reviewRoutes);
 app.use('/api/locations', locationRoutes);
-app.use('/api/promotions', promotionRoutes);
+app.use('/api/hotels', hotelRoutes);
 app.use('/api/tour-prices', tourPriceRoutes);
 app.use('/api/itineraries', itineraryRoutes);
 app.use('/api/tour-departures', tourDepartureRoutes);
-app.use('/api/location-comments', locationCommentRoutes);
-app.use('/api/hotels', hotelRoutes);
+
+// 3. Giao dịch & Phản hồi (Business Transactions)
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/refunds', refundRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/location-comments', locationCommentRoutes);
+
+// 4. Trao đổi & Hỗ trợ (Communication)
+app.use('/api/contact', contactRoutes);
 app.use('/api/chat', chatRoutes);
-app.use('/api/chat-admin', chatWithAdminRouter);
+app.use('/api/chatwithadmin', chatWithAdminRouter);
+
+// 5. Thông báo & Điểm (Notifications & Credits)
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin-notifications', adminNotificationRoutes);
+app.use('/api/promotions', promotionRoutes);
 app.use('/api/credits', creditRoutes);
+
+// 6. Quản trị & Thống kê (Admin Console)
+app.use('/api/admin', adminRouter);
 app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/refunds', refundRoutes);
 
 
 // --- Cấu hình Socket.IO ---
